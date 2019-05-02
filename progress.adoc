@@ -29,7 +29,7 @@ The fifth column (Static, External) tells whether the symbol is visible only wit
 ----
 
 this also shows we should ignore any symbols with UNDEF in the 3rd column (assume any time before '|'?)
-`grep -v ".* UNDEF .*|"`
+`grep -v "^.* UNDEF .*|"`
 
 only include the function signature (in brackets:
 `grep -o (.*)`

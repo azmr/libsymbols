@@ -1,7 +1,9 @@
+# TODO: allow obj as input
+
 if [ $# -lt 2 ] || [ $1 = "/?" ] || [ $1 = --help ] || [ $1 = -h ]; then
 	echo
 	echo "libsymbols - generate a CSV of the symbols in your lib files"
-	echo "=========="
+	echo "==========   to help resolve link errors"
 	echo
 	echo "Usage: $0 OBJ_ROOT LIBS..."
 	echo
@@ -45,10 +47,12 @@ for ((lib_i=0; lib_i < ${#libs[@]}; ++lib_i)); do
 
 		dumpbin -symbols $object_path \
 			| grep -v "(\`string')" \
+			| grep -v "^.* UNDEF .*|" \
 			| grep -o "External *|.*(.*)" \
-			| grep -o \(.*\) \
-			| sed "s/^(/$lib; $object; /" \
+			| sed "s/^[^(]*(/$lib; $object; /" \
 			| sed "s/)$//"
+
+# dumpbin -symbols OBJ | grep -v "(`string')" | grep -v "^.* UNDEF .*|" | grep -o "External *|.*(.*)" | sed "s/^.*(/LIB; /" | sed "s/)$//"
 
 		let successful_n++
 	done
