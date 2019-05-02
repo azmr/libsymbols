@@ -1,0 +1,46 @@
+= Libsymbols
+_generate a CSV of the symbols in your lib files to help resolve link errors_
+
+== Motivation
+
+Given a number of link errors from the llvm/clang libraries it was not always obvious what libraries needed to be added to provide all the required symbols.
+
+
+== Usage
+
+----
+bash libsymbols.sh OBJ_ROOT LIBS...
+
+OBJ_ROOT - the root directory to search for the .obj files
+           that make up the libs in question
+
+LIBS     - all the .lib files to inspect for symbols
+----
+
+Output is sent to stdout by default, so you can redirect this to a file with `>`
+Progress is directed to stderr.
+
+This uses the MSVC tools, so vcvarsall.bat (or the platform equivalent) needs to be called on the terminal before using this utility.
+
+
+== Output
+
+Generates a CSV in the format
+
+----
+library.lib; object.obj; demangled symbol name/signature
+----
+
+e.g:
+
+----
+clangParse.lib; ParseAST.obj; void __cdecl clang::ParseAST(class clang::Sema &,bool,bool)
+----
+
+The output can then be searched via a text file, a spreadsheet editor, or using `grep` from the command line:
+
+----
+cat clang_symbols.csv | grep -F clang::ParseAST
+----
+
+(the -F makes grep do a literal string search, so it won't get confused by `*` s)
