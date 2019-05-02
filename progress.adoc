@@ -1,0 +1,52 @@
+= Associating functions with libraries
+
+lib can generate a list of object files from a .lib file
+`lib /list file.lib`
+
+dumpbin generates a symbol table for an object
+`dumpbin /symbols file.obj`
+
+many of these are strings, which can be removed with
+`grep -v "(`string')"`
+
+The symbol table is in COFF, a doc for which is at
+http://www.skyfree.org/linux/references/coff.pdf
+
+To find the Storage Classes (ch 5.4.4.) included in the table:
+`grep -o "[^ ]* *|" | grep -o "\w*"`
+
+and deduplicate these with
+`awk '!x[$0]++'`
+
+Storage class 'static' is private and 'external' is public
+http://www.delorie.com/djgpp/doc/coff/symtab.html
+
+[quote, MSDN, https://docs.microsoft.com/en-us/cpp/build/reference/symbols?view=vs-2019]
+----
+If the third column contains SECTx, the symbol is defined in that section of the object file. But if UNDEF appears, it is not defined in that object and must be resolved elsewhere.
+
+The fifth column (Static, External) tells whether the symbol is visible only within that object, or whether it is public (visible externally). A Static symbol, _sym, wouldn't be linked to a Public symbol _sym; these would be two different instances of functions named _sym.
+----
+
+this also shows we should ignore any symbols with UNDEF in the 3rd column (assume any time before '|'?)
+`grep -v ".* UNDEF .*|"`
+
+only include the function signature (in brackets:
+`grep -o (.*)`
+
+line so far:
+`dumpbin /symbols FILE.obj | grep -v "(`string')" | grep -o "External *|.*(.*)" | grep -o (.*)`
+
+remove templated things (as test):
+`grep -v "<"`
+
+count lines (for comparisons):
+`wc -l`
+
+append text:
+`sed "s/$/TEXT/"`
+or
+`awk "{print $0\"TEXT\"}"`
+
+not all at same level in folder hierarchy, so can use this to get full name (using * as glob):
+`find DIR -name NAME`
